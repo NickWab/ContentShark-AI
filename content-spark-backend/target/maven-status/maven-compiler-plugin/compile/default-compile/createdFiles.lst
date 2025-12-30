@@ -1,0 +1,4 @@
+com\contentspark\Application.class
+com\contentspark\controller\AIController.class
+com\contentspark\service\GeminiService.class
+com\contentspark\dto\AIRequest.class
