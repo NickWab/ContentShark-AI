@@ -14,10 +14,10 @@ export default function App() {
   const [draftContent, setDraftContent] = useState(null);
   const [isDrafting, setIsDrafting] = useState(false);
   const [projectSettings, setProjectSettings] = useState({
-      name: "My SaaS Project",
-      topics: "Spring Boot, AI, Microservices, SaaS",
-      audience: "Mid-to-Senior level software developers interested in modern backend technologies and AI integration. They are technically proficient and appreciate in-depth, practical examples.",
-      tone: "Professional & Authoritative"
+    name: "My SaaS Project",
+    topics: "Spring Boot, AI, Microservices, SaaS",
+    audience: "Mid-to-Senior level software developers interested in modern backend technologies and AI integration. They are technically proficient and appreciate in-depth, practical examples.",
+    tone: "Professional & Authoritative"
   });
 
   const handleLogin = () => setIsLoggedIn(true);
@@ -29,10 +29,9 @@ export default function App() {
     setActiveView('project');
   };
 
-  const handleSelectIdea = useCallback(async (idea) => {
-    setSelectedIdea(idea);
-    setActiveView('draft');
-    setDraftContent(null); 
+  // Generate draft for a given idea (structured object with title and description)
+  const generateDraft = useCallback(async (idea) => {
+    setDraftContent(null);
     setIsDrafting(true);
 
     const prompt = `
@@ -47,15 +46,40 @@ export default function App() {
     `;
 
     try {
-        const generatedDraft = await callGeminiAPI(prompt);
-        setDraftContent(generatedDraft);
+      const generatedDraft = await callGeminiAPI(prompt);
+      setDraftContent(generatedDraft);
     } catch (error) {
-        console.error("Failed to generate draft:", error);
-        setDraftContent("Failed to generate draft. Please try again.");
+      console.error("Failed to generate draft:", error);
+      setDraftContent("Failed to generate draft. Please try again.");
     } finally {
-        setIsDrafting(false);
+      setIsDrafting(false);
     }
   }, [projectSettings]);
+
+  // Handle selecting an idea from brainstorm view
+  const handleSelectIdea = useCallback(async (idea) => {
+    setSelectedIdea(idea);
+    setActiveView('draft');
+    await generateDraft(idea);
+  }, [generateDraft]);
+
+  // Handle regenerating the draft with the same idea
+  const handleRegenerateDraft = useCallback(async () => {
+    if (selectedIdea) {
+      await generateDraft(selectedIdea);
+    }
+  }, [selectedIdea, generateDraft]);
+
+  // Handle updating draft content when user edits
+  const handleUpdateDraft = useCallback((newContent) => {
+    setDraftContent(newContent);
+  }, []);
+
+  // Handle repurposing content
+  const handleRepurpose = useCallback((content) => {
+    setDraftContent(content);
+    setActiveView('repurpose');
+  }, []);
 
   if (!isLoggedIn) {
     return <LoginPage onLogin={handleLogin} />;
@@ -63,28 +87,35 @@ export default function App() {
 
   const renderActiveView = () => {
     switch (activeView) {
-        case 'project':
-            return <ProjectSettingsView projectSettings={projectSettings} setProjectSettings={setProjectSettings} />;
-        case 'brainstorm':
-            return <BrainstormView onSelectIdea={handleSelectIdea} projectSettings={projectSettings} />;
-        case 'draft':
-            return <DraftEditorView selectedIdea={selectedIdea} draftContent={draftContent} isDrafting={isDrafting}/>;
-        case 'repurpose':
-            return <RepurposeView draftContent={draftContent} projectSettings={projectSettings} />;
-        default:
-            return <ProjectSettingsView projectSettings={projectSettings} setProjectSettings={setProjectSettings} />;
+      case 'project':
+        return <ProjectSettingsView projectSettings={projectSettings} setProjectSettings={setProjectSettings} />;
+      case 'brainstorm':
+        return <BrainstormView onSelectIdea={handleSelectIdea} projectSettings={projectSettings} />;
+      case 'draft':
+        return (
+          <DraftEditorView
+            selectedIdea={selectedIdea}
+            draftContent={draftContent}
+            isDrafting={isDrafting}
+            onRegenerateDraft={handleRegenerateDraft}
+            onRepurpose={handleRepurpose}
+            onUpdateDraft={handleUpdateDraft}
+          />
+        );
+      case 'repurpose':
+        return <RepurposeView draftContent={draftContent} projectSettings={projectSettings} />;
+      default:
+        return <ProjectSettingsView projectSettings={projectSettings} setProjectSettings={setProjectSettings} />;
     }
   }
 
   return (
     <div className="flex h-screen bg-gray-800 text-white font-sans">
-        <Sidebar activeView={activeView} setActiveView={setActiveView} onLogout={handleLogout} />
-        <main className="flex-1 overflow-y-auto bg-gray-800">
-            {/* Header can go here if needed */}
-            <div className="p-4">{renderActiveView()}</div>
-        </main>
+      <Sidebar activeView={activeView} setActiveView={setActiveView} onLogout={handleLogout} />
+      <main className="flex-1 overflow-y-auto bg-gray-800">
+        {/* Header can go here if needed */}
+        <div className="p-4">{renderActiveView()}</div>
+      </main>
     </div>
   );
 }
-
-
