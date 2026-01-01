@@ -29,18 +29,31 @@ export default function App() {
     setActiveView('project');
   };
 
-  // Generate draft for a given idea (structured object with title and description)
-  const generateDraft = useCallback(async (idea) => {
+  // Generate draft for a given idea with optional length settings
+  const generateDraft = useCallback(async (idea, lengthSettings = null) => {
     setDraftContent(null);
     setIsDrafting(true);
+
+    // Build length constraint text for prompt
+    let lengthConstraint = '';
+    if (lengthSettings && (lengthSettings.chars || lengthSettings.paragraphs)) {
+      const constraints = [];
+      if (lengthSettings.chars) {
+        constraints.push(`approximately ${lengthSettings.chars} characters`);
+      }
+      if (lengthSettings.paragraphs) {
+        constraints.push(`${lengthSettings.paragraphs} paragraphs maximum`);
+      }
+      lengthConstraint = `\n        IMPORTANT: Keep the post concise - target ${constraints.join(' and ')}. Focus on the key points only.`;
+    }
 
     const prompt = `
         You are a skilled content writer with a ${projectSettings.tone} tone of voice.
         Your target audience is: ${projectSettings.audience}.
         
-        Write a comprehensive, well-structured blog post draft based on the following idea:
+        Write a well-structured blog post draft based on the following idea:
         Title: "${idea.title}"
-        Description: "${idea.description}"
+        Description: "${idea.description}"${lengthConstraint}
         
         The draft should be in Markdown format. It should have a clear introduction, body, and conclusion. Use headings, bold text, and lists where appropriate to improve readability.
     `;
@@ -63,10 +76,10 @@ export default function App() {
     await generateDraft(idea);
   }, [generateDraft]);
 
-  // Handle regenerating the draft with the same idea
-  const handleRegenerateDraft = useCallback(async () => {
+  // Handle regenerating the draft with the same idea (accepts length settings from DraftEditorView)
+  const handleRegenerateDraft = useCallback(async (lengthSettings = null) => {
     if (selectedIdea) {
-      await generateDraft(selectedIdea);
+      await generateDraft(selectedIdea, lengthSettings);
     }
   }, [selectedIdea, generateDraft]);
 
