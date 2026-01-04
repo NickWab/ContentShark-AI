@@ -1,5 +1,6 @@
 import React from 'react';
-import { SharkIcon, SettingsIcon, LightbulbIcon, FileTextIcon, ShareIcon } from '../assets/icons.jsx';
+import { SettingsIcon, LightbulbIcon, FileTextIcon, ShareIcon } from '../assets/icons.jsx';
+import ContentSharkLogo from '../assets/ContentSharkLogo.jpg';
 
 const Sidebar = ({ activeView, setActiveView, onLogout, isSidebarOpen, setIsSidebarOpen }) => {
     const navItems = [
@@ -23,7 +24,7 @@ const Sidebar = ({ activeView, setActiveView, onLogout, isSidebarOpen, setIsSide
         `}>
             <div className="flex items-center justify-between h-20 px-6 border-b border-gray-800">
                 <div className="flex items-center">
-                    <SharkIcon className="w-8 h-8 text-indigo-400" />
+                    <img src={ContentSharkLogo} alt="ContentShark Logo" className="w-10 h-10 rounded-full object-cover" />
                     <span className="ml-3 text-2xl font-bold">ContentShark</span>
                 </div>
                 {/* Mobile Close Button */}
