@@ -8,7 +8,7 @@ const LENGTH_PRESETS = {
   custom: { label: 'Custom', chars: 2000, paragraphs: 6 }
 };
 
-export default function DraftEditorView({ selectedIdea, draftContent, isDrafting, onRegenerateDraft, onRepurpose, onUpdateDraft }) {
+export default function DraftEditorView({ selectedIdea, draftContent, isDrafting, onRegenerateDraft, onRepurpose, onUpdateDraft, showToast }) {
   const [editedContent, setEditedContent] = useState('');
   const [lengthPreset, setLengthPreset] = useState('full');
   const [customChars, setCustomChars] = useState(2000);
@@ -26,6 +26,31 @@ export default function DraftEditorView({ selectedIdea, draftContent, isDrafting
     if (onUpdateDraft) {
       onUpdateDraft(e.target.value);
     }
+  };
+
+  const handleCopy = async () => {
+    if (!editedContent) return;
+    try {
+      await navigator.clipboard.writeText(editedContent);
+      showToast('Content copied to clipboard!', 'success');
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+      showToast('Failed to copy content.', 'error');
+    }
+  };
+
+  const handleDownload = () => {
+    if (!editedContent) return;
+    const blob = new Blob([editedContent], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${selectedIdea?.title || 'draft'}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Draft downloaded as Markdown file!', 'success');
   };
 
   // Get current length settings
@@ -52,19 +77,35 @@ export default function DraftEditorView({ selectedIdea, draftContent, isDrafting
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
         <div>
           <h1 className="text-3xl font-bold flex items-center">
             <FileTextIcon className="h-8 w-8 mr-3 text-indigo-400" />
             Draft Editor
           </h1>
           {selectedIdea && (
-            <p className="text-gray-400 mt-1 text-sm">
+            <p className="text-gray-400 mt-1 text-sm break-all">
               Drafting: <span className="text-indigo-300 font-medium">{selectedIdea.title}</span>
             </p>
           )}
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-2 flex-wrap">
+          <button
+            onClick={handleCopy}
+            disabled={isDrafting || !editedContent}
+            className="bg-gray-700 hover:bg-gray-600 disabled:opacity-50 text-white font-semibold py-2 px-3 rounded-lg flex items-center transition-colors text-sm"
+            title="Copy to Clipboard"
+          >
+            Copy
+          </button>
+          <button
+            onClick={handleDownload}
+            disabled={isDrafting || !editedContent}
+            className="bg-gray-700 hover:bg-gray-600 disabled:opacity-50 text-white font-semibold py-2 px-3 rounded-lg flex items-center transition-colors text-sm"
+            title="Download Markdown"
+          >
+            Download
+          </button>
           <button
             onClick={handleRegenerateWithSettings}
             disabled={isDrafting}
@@ -94,8 +135,8 @@ export default function DraftEditorView({ selectedIdea, draftContent, isDrafting
                 key={key}
                 onClick={() => setLengthPreset(key)}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${lengthPreset === key
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
                   }`}
               >
                 {preset.label}

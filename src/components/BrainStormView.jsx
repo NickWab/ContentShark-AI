@@ -2,19 +2,41 @@ import React, { useState } from 'react';
 import { LoaderIcon, LightbulbIcon } from '../assets/icons.jsx';
 import { callGeminiAPI } from '../api/geminiAPI.js';
 
-export default function BrainstormView({ onSelectIdea, projectSettings }) {
-    const [topic, setTopic] = useState('');
-    const [ideas, setIdeas] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
+export default function BrainstormView({ onSelectIdea, projectSettings, brainstormState, onUpdateBrainstormState }) {
+    // Destructure from parent state
+    const { topic, ideas, isLoading } = brainstormState;
 
-    const handleGenerate = async () => {
-        if (!topic.trim()) return;
+    // Helper to update state
+    const setTopic = (newTopic) => onUpdateBrainstormState({ topic: newTopic });
+    const setIdeas = (newIdeas) => onUpdateBrainstormState({ ideas: newIdeas });
+    const setIsLoading = (loading) => onUpdateBrainstormState({ isLoading: loading });
+
+    // Parse topics from settings
+    const sensitiveTopics = projectSettings?.topics
+        ? projectSettings.topics.split(',').map(t => t.trim()).filter(Boolean)
+        : [];
+
+    const handleGenerate = async (selectedTopic = topic) => {
+        const topicToUse = selectedTopic || topic;
+        if (!topicToUse.trim()) return;
         setIsLoading(true);
-        
+
+        // Enhance prompt with project context
+        const context = `
+        Project Context:
+        - Brand Name: ${projectSettings?.name || 'N/A'}
+        - Target Audience: ${projectSettings?.audience || 'General audience'}
+        - Brand Tone: ${projectSettings?.tone || 'Professional'}
+        `;
+
         // Generate structured ideas with title and description
-        const prompt = `Brainstorm 5 creative blog post ideas based on the topic: "${topic}". 
+        const prompt = `${context}
+
+        Brainstorm 5 creative blog post ideas based on the topic: "${topicToUse}".
         
-Return the response as a JSON array of objects, each with "title" and "description" fields. The description should be 1-2 sentences explaining the article angle.
+        The ideas should specifically appeal to the defined target audience and match the brand tone.
+        
+        Return the response as a JSON array of objects, each with "title" and "description" fields. The description should be 1-2 sentences explaining the article angle.
 
 Example format:
 [
@@ -37,6 +59,17 @@ Return ONLY the JSON array, no additional text.`;
         setIsLoading(false);
     };
 
+    const handleTopicClick = (t) => {
+        // Parse current input into an array of trimmed strings
+        const currentTopics = topic.split(',').map(s => s.trim()).filter(Boolean);
+
+        // If the topic is not already in the list, add it
+        if (!currentTopics.includes(t)) {
+            const newTopics = [...currentTopics, t];
+            setTopic(newTopics.join(', '));
+        }
+    };
+
     const handleSelectIdea = (idea) => {
         // Pass structured idea object to parent
         onSelectIdea({
@@ -50,7 +83,7 @@ Return ONLY the JSON array, no additional text.`;
             <h1 className="text-3xl font-bold mb-2">Brainstorm Ideas</h1>
             <p className="text-gray-400 mb-6">Enter a topic, and let the AI generate some creative blog post ideas for you.</p>
 
-            <div className="flex gap-4 mb-8">
+            <div className="flex flex-col md:flex-row gap-4 mb-4">
                 <input
                     type="text"
                     value={topic}
@@ -60,9 +93,9 @@ Return ONLY the JSON array, no additional text.`;
                     className="flex-grow bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
                 <button
-                    onClick={handleGenerate}
+                    onClick={() => handleGenerate()}
                     disabled={isLoading}
-                    className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-900 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors"
+                    className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-900 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center transition-colors whitespace-nowrap"
                 >
                     {isLoading ? (
                         <>
@@ -70,13 +103,31 @@ Return ONLY the JSON array, no additional text.`;
                             Generating...
                         </>
                     ) : (
-                         <>
+                        <>
                             <LightbulbIcon className="h-5 w-5 mr-2" />
                             Generate Ideas
                         </>
                     )}
                 </button>
             </div>
+
+            {/* Suggested Topics Chips */}
+            {sensitiveTopics.length > 0 && (
+                <div className="mb-8">
+                    <p className="text-sm text-gray-500 mb-2">Suggested from Project Settings:</p>
+                    <div className="flex flex-wrap gap-2">
+                        {sensitiveTopics.map((t, i) => (
+                            <button
+                                key={i}
+                                onClick={() => handleTopicClick(t)}
+                                className="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-sm rounded-full text-indigo-300 border border-gray-600 hover:border-indigo-400 transition-all"
+                            >
+                                {t}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <div className="space-y-4">
                 {ideas.map((idea, index) => (

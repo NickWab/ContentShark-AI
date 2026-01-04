@@ -1,15 +1,15 @@
 import React from 'react';
-import { SparklesIcon } from '../assets/icons.jsx';
+import { SharkIcon } from '../assets/icons.jsx';
 
 const LoginPage = ({ onLogin }) => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
       <div className="w-full max-w-md p-8 space-y-8 bg-gray-800 rounded-2xl shadow-2xl">
         <div className="text-center">
-            <div className="flex justify-center items-center gap-2 mb-4">
-                 <SparklesIcon className="w-10 h-10 text-indigo-400" />
-                 <h1 className="text-4xl font-bold tracking-tight">ContentSpark AI</h1>
-            </div>
+          <div className="flex justify-center items-center gap-2 mb-4">
+            <SharkIcon className="w-10 h-10 text-indigo-400" />
+            <h1 className="text-4xl font-bold tracking-tight">ContentShark AI</h1>
+          </div>
           <p className="text-gray-400">Your AI-powered content marketing assistant.</p>
         </div>
         <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); onLogin(); }}>

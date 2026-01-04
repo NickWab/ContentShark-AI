@@ -78,18 +78,18 @@ Ready to come aboard? Follow these steps to get the frontend running on your loc
 
 Here's the course we're charting for the future:
 
-*   [ ] **Complete Backend Microservices:**
-    *   [ ] User Authentication & Authorization
-    *   [ ] Project & Document Management
-*   [ ] **Full Kafka Integration:**
-    *   [ ] Asynchronous communication between all services
-*   [ ] **CI/CD Pipeline:**
-    *   [ ] Automated testing and deployment with GitHub Actions
-*   [ ] **Cloud Deployment:**
-    *   [ ] Containerize with Docker and orchestrate with Kubernetes
-*   [ ] **More AI Features:**
-    *   [ ] SEO analysis and suggestions
-    *   [ ] Tone and style adjustments
+*   [x] **Complete Backend Microservices:**
+    *   [x] User Authentication & Authorization
+    *   [x] Project & Document Management
+*   [x] **Full Kafka Integration:**
+    *   [x] Asynchronous communication between all services
+*   [x] **CI/CD Pipeline:**
+    *   [x] Automated testing and deployment with GitHub Actions
+*   [x] **Cloud Deployment:**
+    *   [x] Containerize with Docker and orchestrate with Kubernetes
+*   [x] **More AI Features:**
+    *   [x] SEO analysis and suggestions
+    *   [x] Tone and style adjustments
 
 ---
 
