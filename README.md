@@ -53,7 +53,7 @@ Ready to come aboard? Follow these steps to get the frontend running on your loc
 
 1.  **Clone the repository:**
     ```sh
-    git clone https://github.com/m-a-r-c-e-l-i-n-o/contentshark-ai.git
+    git clone https://github.com/NickWab/ContentShark-AI.git
     ```
 2.  **Navigate to the project directory:**
     ```sh
