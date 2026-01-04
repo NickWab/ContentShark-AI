@@ -1,6 +1,4 @@
-import React from 'react';
-import { LoaderIcon } from '../assets/icons.jsx';
-import ContentSharkLogo from '../assets/ContentSharkLogo.jpg';
+import { SharkIcon } from '../assets/icons.jsx';
 
 const LoginPage = ({ onLogin }) => {
   return (
@@ -8,7 +6,7 @@ const LoginPage = ({ onLogin }) => {
       <div className="w-full max-w-md p-8 space-y-8 bg-gray-800 rounded-2xl shadow-2xl">
         <div className="text-center">
           <div className="flex justify-center items-center gap-2 mb-4">
-            <img src={ContentSharkLogo} alt="ContentShark Logo" className="w-16 h-16 rounded-full object-cover mb-2" />
+            <SharkIcon className="w-10 h-10 text-indigo-400" />
             <h1 className="text-4xl font-bold tracking-tight">ContentShark AI</h1>
           </div>
           <p className="text-gray-400">Your AI-powered content marketing assistant.</p>
